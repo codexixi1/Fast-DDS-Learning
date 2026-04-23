@@ -1,0 +1,12 @@
+[submodule "Fast-CDR"]
+	path = Fast-CDR
+	url = https://github.com/eProsima/Fast-CDR.git
+[submodule "Fast-DDS"]
+	path = Fast-DDS
+	url = https://github.com/eProsima/Fast-DDS.git
+[submodule "foonathan_memory_vendor"]
+	path = foonathan_memory_vendor
+	url = https://github.com/eProsima/foonathan_memory_vendor.git
+[submodule "src/googletest-distribution"]
+	path = src/googletest-distribution
+	url = https://github.com/google/googletest.git
