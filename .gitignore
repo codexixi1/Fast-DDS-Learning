@@ -1,0 +1,11 @@
+# 编译目录
+build/
+install/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+*.so
+*.a
+*.o
+*.pyc
+__pycache__/
