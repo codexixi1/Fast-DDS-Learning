@@ -1,0 +1,91 @@
+1.安装5个通用软件工具
+cmake g++ pip3 wget git
+使用命令: sudo apt install cmake g++ python3-pip wget git
+验证: 
+cmake --version
+g++ --version
+pip3 --version
+wget --version
+git --version
+想知道安装路径？使用which命令
+which cmake
+which git
+which g++
+which pip3
+which wget
+当前安装路径:
+CMake: /usr/bin/cmake
+Git: /usr/bin/git
+G++: /usr/bin/g++
+Pip3: /usr/bin/pip3
+WGet: /usr/bin/wget
+
+2.安装一些依赖库
+Asio TinyXml2 Openssl Libp11 SoftHSM Gtest(optional) XMLvalidationTool(optional)
+使用命令:
+sudo apt install libasio-dev libtinyxml2-dev
+sudo apt install libssl-dev
+sudo apt install libp11-dev
+sudo apt install softhsm2
+// 下面这条命令是对当前用户进行加入softhsm组，获得对HSM模块的管理权限
+使用命令: sudo usermod -a -G softhsm $USER
+// 这条命令是用来检测当前用户是否成功加入softhsm组，注意：上面执行后退出重新登录，输出里面包含softhsm即成功
+groups
+/*
+OpenSSL 本身是个密码学库，它有个扩展机制叫 Engine（引擎）。
+Engine 就像一个插件，让 OpenSSL 可以把签名、加密、密钥存储这些操作 “外包” 给其他模块（比如硬件 HSM 或 SoftHSM），而不是只在本地文件里处理密钥。
+PKCS#11它是一套标准接口，所有安全设备（HSM、U 盾、SoftHSM）都遵循这个接口规范。
+OpenSSL 本身不直接支持 PKCS#11，所以需要一个 “翻译官”，也就是下面说的 libp11 或 p11-kit
+我们可以手动在/etc/ssl/openssl.cnf中指定libp11和SoftHSM动态库的位置，推荐安装下面自动发现的工具
+*/
+sudo apt install libengine-pkcs11-openssl
+// 用如下两个命令去验证
+// 检查p11工具包是否能找到SoftHSM模块，如果成功，应该会看到SoftHSM的动态库路径
+使用命令: p11-kit list-modules
+// 检查OpenSSL是否能够访问PKCS#11引擎，如果成功，应该会能看到Available结果
+使用命令: openssl engine pkcs11 -t
+
+3.额外测试用的附加库(optional)
+Gtest xmlschema
+// 如果只是编译FastDDS主库，不跑官方单元测试，可以不装GTest，自己项目写单元测试就装，推荐在项目目录下进行安装
+git clone --branch release-1.11.0 https://github.com/google/googletest src/googletest-distribution
+// XML validation tool是验证XML文件是否符合XSD规范，确保XML文件格式正确，不装只是没法用fastdds xml validate命令
+使用命令: pip install xmlschema
+
+4.主要通过CMake编译安装eProsima Fast DDS，Colcon安装是基于ROS2开发，一般只有机器人用得到
+使用命令:
+mkdir ~/Fast-DDS
+
+// 编译安装Foonathan memory
+cd ~/Fast-DDS
+git clone https://github.com/eProsima/foonathan_memory_vendor.git
+mkdir foonathan_memory_vendor/build
+cd foonathan_memory_vendor/build
+cmake .. -DCMAKE_INSTALL_PREFIX=~/Fast-DDS/install -DBUILD_SHARED_LIBS=ON
+cmake --build . --target install
+
+// 编译安装Fast CDR
+cd ~/Fast-DDS
+git clone https://github.com/eProsima/Fast-CDR.git
+mkdir Fast-CDR/build
+cd Fast-CDR/build
+cmake .. -DCMAKE_INSTALL_PREFIX=~/Fast-DDS/install
+cmake --build . --target install
+
+// 编译安装eProsima Fast DDS
+cd ~/Fast-DDS
+git clone https://github.com/eProsima/Fast-DDS.git
+mkdir Fast-DDS/build
+cd Fast-DDS/build
+cmake ..  -DCMAKE_INSTALL_PREFIX=~/Fast-DDS/install
+cmake --build . --target install
+
+5.Fast DDS-Gen的安装，用于把IDL接口语言文件生成源代码，是一款JAVA应用程序
+// 先安装JDK
+使用命令: sudo apt install openjdk-17-jdk
+// 编译安装FastDDS-Gen，用到了gradlew管理依赖
+mkdir -p ~/Fast-DDS/src
+cd ~/Fast-DDS/src
+git clone --recursive https://github.com/eProsima/Fast-DDS-Gen.git fastddsgen
+cd fastddsgen
+./gradlew assemble
